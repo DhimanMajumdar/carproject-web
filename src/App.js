@@ -32,7 +32,7 @@ function App() {
             }
           />
           <Route
-            path="/car/:id"
+            path="/cars/:id"
             element={
               <PrivateRoute>
                 <CarDetailPage token={token} />
