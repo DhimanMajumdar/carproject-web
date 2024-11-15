@@ -1,24 +1,55 @@
-import logo from './logo.svg';
-import './App.css';
+import React, { useState } from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import Login from './components/Auth/Login';
+import Register from './components/Auth/Register';
+import HomePage from './components/pages/HomePage';
+import CarDetailPage from './components/pages/CarDetailPage';
+import CarFormPage from './components/pages/CarFormPage';
 
 function App() {
+  const [token, setToken] = useState(localStorage.getItem('token'));
+
+  const PrivateRoute = ({ children }) => {
+    return token ? children : <Navigate to="/login" />;
+  };
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <Router>
+      <div className="min-h-screen bg-background">
+        <Routes>
+          {/* Default Route */}
+          <Route path="/" element={<Navigate to="/register" />} />
+          {/* Public Routes */}
+          <Route path="/login" element={<Login setAuthToken={setToken} />} />
+          <Route path="/register" element={<Register />} />
+          {/* Private Routes */}
+          <Route
+            path="/home"
+            element={
+              <PrivateRoute>
+                <HomePage token={token} />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/car/:id"
+            element={
+              <PrivateRoute>
+                <CarDetailPage token={token} />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/add-car"
+            element={
+              <PrivateRoute>
+                <CarFormPage token={token} />
+              </PrivateRoute>
+            }
+          />
+        </Routes>
+      </div>
+    </Router>
   );
 }
 
