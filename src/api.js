@@ -1,39 +1,48 @@
 import axios from 'axios';
 
-const API_URL = 'http://localhost:5000/api'; // Ensure backend URL is used
+// Use environment variable for API URL, with a fallback to localhost if not defined
+const API_URL = process.env.REACT_APP_API_URL;
 
+// Register user
 export const register = (userData) => axios.post(`${API_URL}/users/register`, userData);
+
+// Login user
 export const login = (userData) => axios.post(`${API_URL}/users/login`, userData);
 
+// Fetch cars with optional search keyword
 export const fetchCars = (token, searchKeyword = '') =>
   axios.get(`${API_URL}/cars`, {
     headers: { Authorization: `Bearer ${token}` },
     params: { search: searchKeyword }, // Add search parameter if any
   });
 
+// Fetch a car by its ID
 export const fetchCarById = (id, token) =>
   axios.get(`${API_URL}/cars/${id}`, { headers: { Authorization: `Bearer ${token}` } });
+
+// Create a new car
 export const createCar = async (carData, token) => {
   const config = {
     headers: {
       'Content-Type': 'application/json',
-      Authorization: `Bearer ${token}`, // If authentication is needed
+      Authorization: `Bearer ${token}`,
     },
   };
 
-  const response = await axios.post('http://localhost:5000/api/cars/', carData, config);
+  const response = await axios.post(`${API_URL}/cars/`, carData, config);
   return response.data;
 };
 
+// Update an existing car
 export const updateCar = (id, carData, token) =>
   axios.put(`${API_URL}/cars/${id}`, carData, {
     headers: {
-      Authorization: `Bearer ${token}`
+      Authorization: `Bearer ${token}`,
     },
   });
 
-  export const deleteCar = (id, token) =>
-    axios.delete(`${API_URL}/cars/${id}`, {
-      headers: { Authorization: `Bearer ${token}` }, // Include Authorization header
-    });
-
+// Delete a car
+export const deleteCar = (id, token) =>
+  axios.delete(`${API_URL}/cars/${id}`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
