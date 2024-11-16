@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { createCar } from '../../api';
 
 function CarFormPage({ token }) {
@@ -7,32 +8,34 @@ function CarFormPage({ token }) {
     description: '',
     tags: '',
   });
-  const [image, setImage] = useState(null);
 
+  const navigate = useNavigate(); // Added useNavigate hook
+
+  // Handles form field changes
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleFileChange = (e) => {
-    setImage(e.target.files[0]);
-  };
-
+  // Handles form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const carData = new FormData();
-    carData.append('title', formData.title);
-    carData.append('description', formData.description);
-    carData.append('tags', formData.tags);
-    if (image) {
-      carData.append('images', image); // Attach the image
-    }
+    const carData = {
+      title: formData.title,
+      description: formData.description,
+      tags: formData.tags, // Send this as a plain string
+    };
+
+    console.log('Submitting car data:', carData);
 
     try {
-      await createCar(carData, token);
+      await createCar(carData, token); // Ensure createCar is sending a JSON payload
       alert('Car added successfully!');
+      setFormData({ title: '', description: '', tags: '' }); // Clear form after success
+      navigate('/home'); // Navigate to /home after success
     } catch (error) {
-      alert('Error adding car.');
+      console.error('Error adding car:', error.response?.data || error.message);
+      alert(error.response?.data?.error || 'Error adding car. Please try again.');
     }
   };
 
@@ -64,12 +67,6 @@ function CarFormPage({ token }) {
             className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
             onChange={handleChange}
             value={formData.tags}
-          />
-          <input
-            type="file"
-            accept="image/*"
-            onChange={handleFileChange}
-            className="w-full py-2 px-4 border rounded-lg focus:outline-none"
           />
           <button
             type="submit"

@@ -1,84 +1,92 @@
 import React, { useEffect, useState } from 'react';
 import { fetchCarById, deleteCar, updateCar } from '../../api';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 
 function CarDetailPage({ token }) {
-  const { id } = useParams();
+  const { id } = useParams(); // Get car ID from URL
   const navigate = useNavigate();
 
   const [car, setCar] = useState(null);
-  const [isLoading, setIsLoading] = useState(true); // Added loading state
-  const [isEditing, setIsEditing] = useState(false);
+  const [isEditing, setIsEditing] = useState(false); // Toggle edit mode
   const [formData, setFormData] = useState({
     title: '',
     description: '',
     tags: '',
   });
 
+  // Function to load car data from API
+  const loadCar = async () => {
+    try {
+      const { data } = await fetchCarById(id, token); // Fetch car details from backend
+      setCar(data);
+      setFormData({
+        title: data.title,
+        description: data.description,
+        tags: data.tags.join(', '), // Convert array to string for editing
+      });
+    } catch (error) {
+      alert('Error fetching car details');
+    }
+  };
+
   useEffect(() => {
-    const loadCar = async () => {
-      try {
-        const { data } = await fetchCarById(id, token);
-        setCar(data);
-        setFormData({
-          title: data.title,
-          description: data.description,
-          tags: data.tags.join(', '),
-        });
-      } catch (error) {
-        console.error('Error fetching car details:', error); // More detailed error logging
-        alert('Error fetching car details');
-      } finally {
-        setIsLoading(false); // Set loading to false when done
-      }
-    };
     loadCar();
   }, [id, token]);
 
   const handleDelete = async () => {
     try {
-      await deleteCar(id, token);
+      await deleteCar(id, token); // Call the delete API
       alert('Car deleted successfully!');
-      navigate('/'); // Redirect after successful delete
+      navigate('/home'); // Redirect to the home page
     } catch (error) {
-      console.error('Error deleting car:', error); // Log error details
-      alert('Error deleting car');
+      console.error('Error deleting car:', error.response?.data?.message || error.message);
+      alert(error.response?.data?.message || 'Error deleting car. Please try again.');
     }
   };
 
   const handleEditToggle = () => {
-    setIsEditing(!isEditing);
+    setIsEditing(!isEditing); // Toggle edit mode
   };
 
   const handleInputChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleImageChange = (e) => {
-    if (e.target.files && e.target.files[0])   
- {
-      setFormData({ ...formData, image: e.target.files[0] });
-    }
-  };
-
   const handleUpdate = async (e) => {
     e.preventDefault();
+  
+    // Construct carData object directly
+    const carData = {
+      title: formData.title,
+      description: formData.description,
+      tags: formData.tags,
+    };
+  
     try {
-      await updateCar(id, { ...formData, tags: formData.tags.split(',') }, token);
-      alert('Car updated successfully!');
+      // Call API to update the car
+      const response = await updateCar(id, carData, token);
+  
+      // Log the updated car data from the response
+      console.log('Updated car in response:', response.data);
+  
+      // Directly set the updated car in state immediately
+      setCar(response.data);  // Set the updated car in state
+      setFormData({
+        title: response.data.title,
+        description: response.data.description,
+        tags: response.data.tags.join(', '), // Ensure tags are joined as a string for display
+      });
+  
+      // Optionally, close the edit mode after update
       setIsEditing(false);
-      const { data } = await fetchCarById(id, token);
-      setCar(data);
+  
+      alert('Car updated successfully!');
     } catch (error) {
-      console.error('Error updating car:', error); // Log error details
       alert('Error updating car');
+      console.error('Update error:', error);
     }
   };
-
-  if (isLoading) {
-    return <p className="text-gray-500">Loading car details...</p>;
-  }
-
+  
   return car ? (
     <div className="min-h-screen bg-background flex items-center justify-center">
       <div className="w-full max-w-lg bg-white shadow-md rounded-lg p-6">
@@ -112,12 +120,6 @@ function CarDetailPage({ token }) {
               placeholder="Tags (comma-separated)"
               className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
             />
-            <input
-            type="file"
-            name="image"
-            onChange={handleImageChange}
-            accept="image/*"
-          />
             <button
               type="submit"
               className="w-full py-2 bg-primary text-white rounded-lg hover:bg-secondary transition"
@@ -156,7 +158,7 @@ function CarDetailPage({ token }) {
       </div>
     </div>
   ) : (
-    <p className="text-gray-500">Car not found or an error occurred.</p>
+    <p className="text-gray-500">Loading car details...</p>
   );
 }
 

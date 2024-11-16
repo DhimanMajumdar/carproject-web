@@ -28,7 +28,7 @@ function Login({ setAuthToken }) {
           <input
             type="text"
             name="username"
-            placeholder="Username"
+            placeholder="Username (e.g., Cristiano)"
             className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
             onChange={handleChange}
             required
@@ -36,7 +36,7 @@ function Login({ setAuthToken }) {
           <input
             type="password"
             name="password"
-            placeholder="Password"
+            placeholder="Password (e.g., Cristiano@123)"
             className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
             onChange={handleChange}
             required

@@ -28,7 +28,7 @@ function Register({ onRegister }) {
           <input
             type="text"
             name="username"
-            placeholder="Username"
+            placeholder="eg:Cristiano(Straightaway login , you'll get it)"
             className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
             onChange={handleChange}
             required
@@ -36,7 +36,7 @@ function Register({ onRegister }) {
           <input
             type="password"
             name="password"
-            placeholder="Password"
+            placeholder="eg:Cristiano@123(Straightaway login)"
             className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
             onChange={handleChange}
             required
