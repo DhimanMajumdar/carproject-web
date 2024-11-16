@@ -3,6 +3,7 @@ import axios from 'axios';
 // Use environment variable for API URL, with a fallback to localhost if not defined
 const API_URL = process.env.REACT_APP_API_URL;
 
+
 // Register user
 export const register = (userData) => axios.post(`${API_URL}/api/users/register`, userData);
 
